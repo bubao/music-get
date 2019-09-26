@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/winterssy/music-get/provider"
+	"github.com/xiaomLee/music-get/provider"
 
-	"github.com/winterssy/music-get/utils"
+	"github.com/xiaomLee/music-get/utils"
 )
 
 const (

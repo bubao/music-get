@@ -1,4 +1,4 @@
-module github.com/winterssy/music-get
+module github.com/xiaomLee/music-get
 
 require (
 	github.com/cheggaaa/pb/v3 v3.0.1

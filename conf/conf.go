@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/winterssy/easylog"
-	"github.com/winterssy/music-get/utils"
+	"github.com/xiaomLee/music-get/utils"
 )
 
 const (
@@ -28,16 +28,19 @@ type Config struct {
 	DownloadDir                  string         `json:"-"`
 	DownloadOverwrite            bool           `json:"-"`
 	ConcurrentDownloadTasksCount int            `json:"-"`
+	RunMode string            `json:"-"`
 }
 
 var (
 	downloadOverwrite            bool
 	concurrentDownloadTasksCount int
+	runMode string
 )
 
 func init() {
 	flag.BoolVar(&downloadOverwrite, "f", false, "overwrite already downloaded music")
-	flag.IntVar(&concurrentDownloadTasksCount, "n", 1, "concurrent download tasks count, max 16")
+	flag.IntVar(&concurrentDownloadTasksCount, "n", 5, "concurrent download tasks count, max 16")
+	flag.StringVar(&runMode, "m", "singer", "decide run mode; default singer, get music by singer name; otherwise url,get music by url")
 }
 
 func Init() error {

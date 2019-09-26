@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/winterssy/music-get/conf"
+	"github.com/xiaomLee/music-get/conf"
 )
 
 const (

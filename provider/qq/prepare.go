@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/winterssy/music-get/provider"
+	"github.com/xiaomLee/music-get/provider"
 )
 
 const (

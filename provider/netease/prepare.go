@@ -1,7 +1,7 @@
 package netease
 
 import (
-	"github.com/winterssy/music-get/provider"
+	"github.com/xiaomLee/music-get/provider"
 )
 
 func prepare(songs []Song, savePath string) ([]*provider.MP3, error) {

@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/winterssy/music-get/provider/netease"
-	"github.com/winterssy/music-get/provider/qq"
+	"github.com/xiaomLee/music-get/provider/netease"
+	"github.com/xiaomLee/music-get/provider/qq"
 )
 
 func TestParse(t *testing.T) {

@@ -4,10 +4,10 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/winterssy/music-get/pkg/ecode"
-	"github.com/winterssy/music-get/provider"
-	"github.com/winterssy/music-get/provider/netease"
-	"github.com/winterssy/music-get/provider/qq"
+	"github.com/xiaomLee/music-get/pkg/ecode"
+	"github.com/xiaomLee/music-get/provider"
+	"github.com/xiaomLee/music-get/provider/netease"
+	"github.com/xiaomLee/music-get/provider/qq"
 )
 
 const (

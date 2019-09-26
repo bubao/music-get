@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/winterssy/music-get/conf"
-	"github.com/winterssy/music-get/pkg/ecode"
-	"github.com/winterssy/music-get/pkg/requests"
-	"github.com/winterssy/music-get/provider"
-	"github.com/winterssy/music-get/utils"
+	"github.com/xiaomLee/music-get/conf"
+	"github.com/xiaomLee/music-get/pkg/ecode"
+	"github.com/xiaomLee/music-get/pkg/requests"
+	"github.com/xiaomLee/music-get/provider"
+	"github.com/xiaomLee/music-get/utils"
 )
 
 const (

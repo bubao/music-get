@@ -2,10 +2,9 @@ package main
 
 import (
 	"flag"
-
 	"github.com/winterssy/easylog"
-	"github.com/winterssy/music-get/conf"
-	"github.com/winterssy/music-get/handler"
+	"github.com/xiaomLee/music-get/conf"
+	"github.com/xiaomLee/music-get/handler"
 )
 
 func main() {
@@ -18,7 +17,22 @@ func main() {
 		easylog.Fatal(err)
 	}
 
-	url := flag.Args()[0]
+	input := flag.Args()[0]
+	switch conf.Conf.RunMode {
+	case "singer":
+		// todo ...
+	case "url":
+		getMusicByUrl(input)
+	}
+
+
+}
+
+func getSingeralbumUrl()  {
+	
+}
+
+func getMusicByUrl(url string) {
 	req, err := handler.Parse(url)
 	if err != nil {
 		easylog.Fatal(err)

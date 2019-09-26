@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/winterssy/music-get/conf"
+	"github.com/xiaomLee/music-get/conf"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

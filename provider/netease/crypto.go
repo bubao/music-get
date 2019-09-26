@@ -10,7 +10,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/winterssy/music-get/utils"
+	"github.com/xiaomLee/music-get/utils"
 )
 
 const (

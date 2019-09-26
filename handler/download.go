@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/winterssy/music-get/pkg/ecode"
-	"github.com/winterssy/music-get/provider"
+	"github.com/xiaomLee/music-get/pkg/ecode"
+	"github.com/xiaomLee/music-get/provider"
 )
 
 type DownloadError struct {
