@@ -2,34 +2,67 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/winterssy/easylog"
 	"github.com/xiaomLee/music-get/conf"
 	"github.com/xiaomLee/music-get/handler"
+	"github.com/xiaomLee/music-get/provider/qq"
+	"github.com/xiaomLee/music-get/utils"
+	"path/filepath"
+	"strings"
 )
 
 func main() {
 	flag.Parse()
-	if len(flag.Args()) == 0 {
-		easylog.Fatal("Missing music address")
+
+	if conf.Singer == "" && conf.Url == "" {
+		easylog.Fatal("Missing required args. " +
+			"get music by singer name pls use: music-get -singer \"Michael Jackson\" . " +
+			"get music by url pls use: music-get -url http://y.qq.com/album/xxxx.html")
 	}
 
 	if err := conf.Init(); err != nil {
 		easylog.Fatal(err)
 	}
 
-	input := flag.Args()[0]
-	switch conf.Conf.RunMode {
-	case "singer":
-		// todo ...
-	case "url":
-		getMusicByUrl(input)
+	if conf.Singer != "" {
+		easylog.Info(fmt.Sprintf("start get music by singer %s", conf.Singer))
+		urlList := getAlbumUrlList(conf.Singer)
+		for _, url := range urlList {
+			getMusicByUrl(url)
+		}
 	}
 
+	if conf.Url != "" {
+		easylog.Info(fmt.Sprintf("start get music by url %s", conf.Url))
+		getMusicByUrl(conf.Url)
+	}
 
+	if err := conf.Conf.Save(); err != nil {
+		easylog.Errorf("Save config failed: %s", err.Error())
+	}
 }
 
-func getSingeralbumUrl()  {
-	
+func getAlbumUrlList(name string) []string {
+	//获取姓名首字母,若是中文转成拼音
+	indexChar := utils.GetIndexChar(name)
+	if indexChar == "" {
+		return nil
+	}
+	indexChar = strings.ToLower(indexChar)
+	singerConf := filepath.Join(conf.ConfigPath, fmt.Sprintf("qq/%s-singer.json", indexChar))
+	if exist, _ := utils.ExistsPath(singerConf); !exist {
+		if err := qq.FetchAllSingerAndStore(indexChar, singerConf); err != nil {
+			easylog.Error(err)
+			return nil
+		}
+	}
+	singerMid := qq.GetSingerMidByName(singerConf, name)
+	if singerMid == "" {
+		easylog.Error(fmt.Sprintf("not fund singer %s", name))
+		return nil
+	}
+	return qq.GenerateAlbumUrl(singerMid)
 }
 
 func getMusicByUrl(url string) {
@@ -44,10 +77,6 @@ func getMusicByUrl(url string) {
 			easylog.Fatalf("Login failed: %s", err.Error())
 		}
 		easylog.Info("Login successful")
-	}
-
-	if err := conf.Conf.Save(); err != nil {
-		easylog.Errorf("Save config failed: %s", err.Error())
 	}
 
 	if err = req.Do(); err != nil {

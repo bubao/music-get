@@ -22,12 +22,12 @@ const (
 var (
 	userAgent     = chooseUserAgent()
 	RequestHeader = map[int]requests.Header{
-		NetEaseMusic: requests.Header{
+		NetEaseMusic: {
 			"Origin":     "https://music.163.com",
 			"Referer":    "https://music.163.com",
 			"User-Agent": userAgent,
 		},
-		QQMusic: requests.Header{
+		QQMusic: {
 			"Origin":     "https://c.y.qq.com",
 			"Referer":    "https://c.y.qq.com",
 			"User-Agent": userAgent,

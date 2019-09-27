@@ -4,14 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
-	)
+	"github.com/winterssy/easylog"
+	"github.com/xiaomLee/music-get/utils"
+	"io/ioutil"
+	"math"
+	"strings"
+)
 
 type SingerListResponse struct {
-	Code int  `json:"code"`
-	Data Data `json:"data"`
+	Code int            `json:"code"`
+	Data SingerListData `json:"data"`
 }
 
-type Data struct {
+type SingerListData struct {
 	Area       int        `json:"area"`
 	Sex        int        `json:"sex"`
 	SingerList SingerList `json:"singerlist"`
@@ -41,7 +46,7 @@ var (
 	albumListApi  = "https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_album.fcg?g_tk=5381&loginUin=0&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0&order=time&begin=0&num=300&exstatus=1&singermid="
 )
 
-func GetSingerList(param SingerListParam) (SingerList, error) {
+func GetSingerListData(param SingerListParam) (*SingerListData, error) {
 	params := map[string]interface{}{
 		"comm": map[string]interface{}{"ct": 24, "cv": 0},
 		"singerList": map[string]interface{}{
@@ -54,7 +59,7 @@ func GetSingerList(param SingerListParam) (SingerList, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(singerListApi + string(paramBytes))
+	//fmt.Println(singerListApi + string(paramBytes))
 	resp, err := request(singerListApi+string(paramBytes), nil)
 	if err != nil {
 		return nil, err
@@ -71,19 +76,79 @@ func GetSingerList(param SingerListParam) (SingerList, error) {
 	if resData.Code != 0 {
 		return nil, errors.New("singer list encode err")
 	}
-	fmt.Println(resData.List.Data.Total)
-	return resData.List.Data.SingerList, nil
+	return &resData.List.Data, nil
+}
+
+func FetchAllSinger(char string) (SingerList, error) {
+	index := utils.CharToIndex(char)
+	param := SingerListParam{
+		Area:    -100,
+		Genre:   -100,
+		Sex:     -100,
+		Index:   index,
+		Sin:     0,
+		CurPage: 1,
+	}
+	data, err := GetSingerListData(param)
+	if err != nil {
+		return nil, err
+	}
+	//80条每页
+	list := data.SingerList
+	page := 2
+	maxPage := int(math.Ceil(float64(data.Total) / 80))
+	for page < maxPage {
+		param.CurPage = page
+		param.Sin = (page - 1) * 80
+		data, err := GetSingerListData(param)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, data.SingerList...)
+		page++
+	}
+
+	return list, nil
+}
+
+func FetchAllSingerAndStore(char string, path string) error {
+	list, err := FetchAllSinger(char)
+	if err != nil {
+		return err
+	}
+	bytes, err := json.MarshalIndent(list, "", "	")
+	if err != nil {
+		easylog.Error(err)
+	}
+	return ioutil.WriteFile(path, bytes, 0666)
+}
+
+func GetSingerMidByName(path string, name string) string {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	var list SingerList
+	if err := json.Unmarshal(data, &list); err != nil {
+		return ""
+	}
+	for _, singer := range list {
+		if strings.Contains(singer.SingerName, name) {
+			return singer.SingerMid
+		}
+	}
+	return ""
 }
 
 type AlbumItem struct {
-	AlbumId    string  `json:"albumID"`
+	AlbumId    string `json:"albumID"`
 	AlbumMid   string `json:"albumMID"`
 	AlbumName  string `json:"albumName"`
 	Albumtype  string `json:"albumtype"`
 	Company    string `json:"company"`
 	Desc       string `json:"desc"`
 	Lan        string `json:"lan"`
-	SingerID   string    `json:"singerId"`
+	SingerID   string `json:"singerId"`
 	SingerMID  string `json:"singerMid"`
 	SingerName string `json:"singerName"`
 }
@@ -98,9 +163,9 @@ func GetAlbumList(singerMid string) (AlbumList, error) {
 	defer resp.Body.Close()
 	var resData struct {
 		Code int `json:"code"`
-		Data struct{
-			List AlbumList `json:"list"`
-			Total int `json:"total"`
+		Data struct {
+			List  AlbumList `json:"list"`
+			Total int       `json:"total"`
 		} `json:"data"`
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&resData); err != nil {
@@ -109,6 +174,21 @@ func GetAlbumList(singerMid string) (AlbumList, error) {
 	if resData.Code != 0 {
 		return nil, err
 	}
-	fmt.Printf("res: %v \n", resData.Data.Total)
+	//fmt.Printf("res: %v \n", resData.Data.Total)
 	return resData.Data.List, nil
+}
+
+func GenerateAlbumUrl(singerMid string) []string {
+	albumList, err := GetAlbumList(singerMid)
+	if err != nil {
+		easylog.Error(err)
+		return nil
+	}
+	var list []string
+	format := "https://y.qq.com/n/yqq/album/%s.html"
+	for _, album := range albumList {
+		url := fmt.Sprintf(format, album.AlbumMid)
+		list = append(list, url)
+	}
+	return list
 }

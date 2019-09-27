@@ -18,8 +18,10 @@ const (
 )
 
 var (
-	confPath string
-	Conf     = &Config{}
+	ConfigPath string
+	Conf       = &Config{}
+	Singer     string
+	Url        string
 )
 
 type Config struct {
@@ -28,19 +30,18 @@ type Config struct {
 	DownloadDir                  string         `json:"-"`
 	DownloadOverwrite            bool           `json:"-"`
 	ConcurrentDownloadTasksCount int            `json:"-"`
-	RunMode string            `json:"-"`
 }
 
 var (
 	downloadOverwrite            bool
 	concurrentDownloadTasksCount int
-	runMode string
 )
 
 func init() {
 	flag.BoolVar(&downloadOverwrite, "f", false, "overwrite already downloaded music")
 	flag.IntVar(&concurrentDownloadTasksCount, "n", 5, "concurrent download tasks count, max 16")
-	flag.StringVar(&runMode, "m", "singer", "decide run mode; default singer, get music by singer name; otherwise url,get music by url")
+	flag.StringVar(&Singer, "singer", "", "get music by singer name, otherwise get music by url")
+	flag.StringVar(&Url, "url", "", "get music by url, otherwise get music by singer name")
 }
 
 func Init() error {
@@ -54,9 +55,16 @@ func Init() error {
 		return err
 	}
 
-	confPath = filepath.Join(pwd, "music-get.json")
-	if err = load(confPath); err != nil {
-		easylog.Warn("Load config file failed, you may run for the first time")
+	ConfigPath = filepath.Join(pwd, "config")
+	if err = utils.BuildPathIfNotExist(ConfigPath); err != nil {
+		return err
+	}
+
+	if err = utils.BuildPathIfNotExist(filepath.Join(ConfigPath, "qq")); err != nil {
+		return err
+	}
+	if err = utils.BuildPathIfNotExist(filepath.Join(ConfigPath, "netease")); err != nil {
+		return err
 	}
 
 	downloadDir := filepath.Join(pwd, "downloads")
@@ -64,6 +72,9 @@ func Init() error {
 		return err
 	}
 
+	if err := load(filepath.Join(ConfigPath, "main.json")); err != nil {
+		easylog.Warn("may you run this first time")
+	}
 	Conf.Workspace = pwd
 	Conf.DownloadDir = downloadDir
 	Conf.DownloadOverwrite = downloadOverwrite
@@ -84,6 +95,6 @@ func (c *Config) Save() error {
 	if err != nil {
 		return err
 	}
-
-	return ioutil.WriteFile(confPath, data, 0644)
+	path := filepath.Join(ConfigPath, "main.json")
+	return ioutil.WriteFile(path, data, 0644)
 }
