@@ -140,8 +140,11 @@ func (m *MP3) ConcurrentDownload(taskList chan DownloadTask, taskQueue chan stru
 		status = ecode.NoCopyright
 		return
 	}
-
-	m.SavePath = filepath.Join(conf.Conf.DownloadDir, m.SavePath)
+	basePath := conf.Conf.DownloadDir
+	if conf.Conf.DownloadSubDir != "" {
+		basePath = filepath.Join(basePath, conf.Conf.DownloadSubDir)
+	}
+	m.SavePath = filepath.Join(basePath, m.SavePath)
 	if err := utils.BuildPathIfNotExist(m.SavePath); err != nil {
 		status = ecode.BuildPathException
 		return

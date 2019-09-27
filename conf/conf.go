@@ -28,6 +28,7 @@ type Config struct {
 	Cookies                      []*http.Cookie `json:"cookies,omitempty"`
 	Workspace                    string         `json:"-"`
 	DownloadDir                  string         `json:"-"`
+	DownloadSubDir               string         `json:"-"`
 	DownloadOverwrite            bool           `json:"-"`
 	ConcurrentDownloadTasksCount int            `json:"-"`
 }

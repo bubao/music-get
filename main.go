@@ -25,17 +25,19 @@ func main() {
 		easylog.Fatal(err)
 	}
 
+	if conf.Url != "" {
+		conf.Conf.DownloadSubDir = ""
+		easylog.Info(fmt.Sprintf("start get music by url %s", conf.Url))
+		getMusicByUrl(conf.Url)
+	}
+
 	if conf.Singer != "" {
+		conf.Conf.DownloadSubDir = conf.Singer
 		easylog.Info(fmt.Sprintf("start get music by singer %s", conf.Singer))
 		urlList := getAlbumUrlList(conf.Singer)
 		for _, url := range urlList {
 			getMusicByUrl(url)
 		}
-	}
-
-	if conf.Url != "" {
-		easylog.Info(fmt.Sprintf("start get music by url %s", conf.Url))
-		getMusicByUrl(conf.Url)
 	}
 
 	if err := conf.Conf.Save(); err != nil {
