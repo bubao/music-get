@@ -1,0 +1,60 @@
+version: '2'
+
+networks:
+  local-host:
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql8.0
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci #设置utf8字符集
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root #root管理员用户密码
+      MYSQL_USER: test   #创建test用户
+      MYSQL_PASSWORD: test  #设置test用户的密码 
+    volumes:
+        #mysql数据库挂载到host物理机目录/e/docker/mysql/data/db
+      - "d:/dockershare/mysql/data:/var/lib/mysql"  
+        #容器的配置目录挂载到host物理机目录/e/docker/mysql/data/conf  
+      - "d:/dockershare/mysql/conf:/etc/mysql/conf.d"
+    ports:
+      - "3306:3306" #host物理直接映射端口为6606
+      - "33060:33060"
+    networks:
+      - local-host
+
+  redis:
+    image: redis:3.2
+    container_name: redis3.2
+    restart: always
+    ports:
+      - "6379:6379" #host物理直接映射端口为6379
+    networks:
+      - local-host
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: admin #管理员用户名密码
+      RABBITMQ_DEFAULT_PASS: admin 
+    ports:
+      - "15672:15672" 
+      - "5672:5672"
+    networks:
+      - local-host
+
+  ubuntu:
+    container_name: ubuntu14
+    restart: always
+    build: d:/dockershare/ubuntu/ubuntu14  #/path/to/build/dir
+    entrypoint: tail -f /dev/null
+    volumes:
+      - "d:/dockershare/ubuntu/work/data:/work/data"
+    ports:
+      - "8081:8081"
+      - "18081:18081"
+    networks:
+      - local-host
