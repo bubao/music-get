@@ -12,26 +12,26 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root #root管理员用户密码
       MYSQL_USER: test   #创建test用户
-      MYSQL_PASSWORD: test  #设置test用户的密码 
+      MYSQL_PASSWORD: test  #设置test用户的密码
     volumes:
-        #mysql数据库挂载到host物理机目录/e/docker/mysql/data/db
-      - "d:/dockershare/mysql/data:/var/lib/mysql"  
-        #容器的配置目录挂载到host物理机目录/e/docker/mysql/data/conf  
-      - "d:/dockershare/mysql/conf:/etc/mysql/conf.d"
+    #mysql数据库挂载到host物理机目录/e/docker/mysql/data/db
+    - "d:/dockershare/mysql/data:/var/lib/mysql"
+    #容器的配置目录挂载到host物理机目录/e/docker/mysql/data/conf
+    - "d:/dockershare/mysql/conf:/etc/mysql/conf.d"
     ports:
-      - "3306:3306" #host物理直接映射端口为6606
-      - "33060:33060"
+    - "3306:3306" #host物理直接映射端口为6606
+    - "33060:33060"
     networks:
-      - local-host
+    - local-host
 
   redis:
     image: redis:3.2
     container_name: redis3.2
     restart: always
     ports:
-      - "6379:6379" #host物理直接映射端口为6379
+    - "6379:6379" #host物理直接映射端口为6379
     networks:
-      - local-host
+    - local-host
 
   rabbitmq:
     image: rabbitmq:management
@@ -39,12 +39,12 @@ services:
     restart: always
     environment:
       RABBITMQ_DEFAULT_USER: admin #管理员用户名密码
-      RABBITMQ_DEFAULT_PASS: admin 
+      RABBITMQ_DEFAULT_PASS: admin
     ports:
-      - "15672:15672" 
-      - "5672:5672"
+    - "15672:15672"
+    - "5672:5672"
     networks:
-      - local-host
+    - local-host
 
   ubuntu:
     container_name: ubuntu14
@@ -52,9 +52,54 @@ services:
     build: d:/dockershare/ubuntu/ubuntu14  #/path/to/build/dir
     entrypoint: tail -f /dev/null
     volumes:
-      - "d:/dockershare/ubuntu/work/data:/work/data"
+    - "d:/dockershare/ubuntu/work/data:/work/data"
     ports:
-      - "8081:8081"
-      - "18081:18081"
+    - "8081:8081"
+    - "18081:18081"
     networks:
-      - local-host
+    - local-host
+
+  centos:
+    container_name: centos
+    restart: always
+    image: centos
+    entrypoint: tail -f /dev/null
+    volumes:
+    - "d:/dockershare/centos/work/data:/work/data"
+    ports:
+    - "8000:8000"
+    - "18000:18000"
+    networks:
+    - local-host
+
+  nginx:
+    container_name: nginx
+    restart: always
+    image: nginx
+    ports:
+    - 8080:80
+    - 80:80
+    - 443:443
+    networks:
+    - local-host
+    volumes:
+    - d:/dockershare/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+    - d:/dockershare/nginx/conf.d:/etc/nginx/conf.d
+    - d:/dockershare/nginx/log:/var/log/nginx
+    - d:/dockershare/nginx/www:/usr/share/nginx/html
+
+  octopus:
+    container_name: octopus
+    restart: always
+    build: d:/dockershare/becent
+    environment:
+      RUNMODE: dev
+    ports:
+    - 5051:5051
+    - 15051:15051
+    networks:
+    - local-host
+    volumes:
+    - d:/dockershare/octopus:/work/apps/base-server-octopus
+    - d:/dockershare/octopus/logs:/work/logs/base-server-octopus
+    entrypoint: cd base-server-octopus \ ./base-server-octopus
